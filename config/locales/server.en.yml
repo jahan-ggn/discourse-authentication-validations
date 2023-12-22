@@ -1,0 +1,3 @@
+en:
+  site_settings:
+    discourse_authentication_validations_enabled: "Enable the Authentication Validations Plugin"

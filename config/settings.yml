@@ -1,0 +1,4 @@
+discourse_authentication_validations:
+  discourse_authentication_validations_enabled:
+    default: false
+    client: true
