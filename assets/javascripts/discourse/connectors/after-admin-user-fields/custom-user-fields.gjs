@@ -1,7 +1,10 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { Input } from "@ember/component";
+import { fn } from "@ember/helper";
+import { on } from "@ember/modifier";
 import { inject as service } from "@ember/service";
+import withEventValue from "discourse/helpers/with-event-value";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import i18n from "discourse-common/helpers/i18n";
 import AdminFormRow from "admin/components/admin-form-row";
@@ -18,9 +21,12 @@ export default class CustomUserFields extends Component {
   constructor() {
     super(...arguments);
     withPluginApi("1.21.0", (api) => {
-      ["has_custom_validation", "show_values", "target_user_field_ids"].forEach(
-        (property) => api.includeUserFieldPropertyOnSave(property)
-      );
+      [
+        "has_custom_validation",
+        "show_values",
+        "target_user_field_ids",
+        "value_validation_regex",
+      ].forEach((property) => api.includeUserFieldPropertyOnSave(property));
     });
   }
 
@@ -37,6 +43,28 @@ export default class CustomUserFields extends Component {
     </AdminFormRow>
 
     {{#if @outletArgs.buffered.has_custom_validation}}
+      <AdminFormRow
+        @label="discourse_authentication_validations.value_validation_regex.label"
+      >
+        <input
+          {{on
+            "input"
+            (withEventValue
+              (fn (mut @outletArgs.buffered.value_validation_regex))
+            )
+          }}
+          value={{@outletArgs.buffered.value_validation_regex}}
+          type="text"
+          class="value-validation-regex-input"
+        />
+        <br />
+        <span>
+          {{i18n
+            "discourse_authentication_validations.value_validation_regex.description"
+          }}
+        </span>
+      </AdminFormRow>
+
       <AdminFormRow
         @label="discourse_authentication_validations.show_values.label"
       >
@@ -59,6 +87,7 @@ export default class CustomUserFields extends Component {
           @content={{this.userFieldsMinusCurrent}}
           @valueProperty="id"
           @value={{@outletArgs.buffered.target_user_field_ids}}
+          class="target-user-field-ids-input"
         />
         <br />
         <span>
